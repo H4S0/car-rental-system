@@ -7,7 +7,6 @@ import models from "../data/models";
 const HomePage = () => {
   return (
     <section className="p-8 mt-8">
-      {/* Main content section */}
       <div className="flex flex-col md:flex-row justify-between items-center mb-8">
         <div className="flex flex-col gap-4 w-full md:w-1/2">
           <h2 className="text-3xl md:text-5xl font-bold text-center md:text-left">
