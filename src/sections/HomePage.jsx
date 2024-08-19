@@ -31,7 +31,7 @@ const HomePage = () => {
           />
         </div>
       </div>
-      <div className="flex flex-wrap justify-center gap-4">
+      <div className="flex flex-wrap justify-center gap-10 mt-[10vh]">
         {models.map((model) => (
           <Models model={model} key={model.id} />
         ))}
