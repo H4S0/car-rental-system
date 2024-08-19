@@ -15,6 +15,7 @@ const Signup = () => {
     setSuccess(null);
 
     const { error } = await supabase.auth.signUp({
+      username,
       email,
       password,
     });
