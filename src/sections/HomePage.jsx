@@ -11,7 +11,7 @@ const HomePage = () => {
         </h2>
         <div className="flex flex-row items-center gap-2">
           <CiLocationOn className="text-5xl md:text-4xl" />
-          <p className="text-2xl">Sarajevo Airport</p>
+          <p className="text-2xl">Sarajevo</p>
         </div>
         <Link to="/cars">
           <Button>Rent a car</Button>
