@@ -14,7 +14,7 @@ const HomePage = () => {
           </h2>
           <div className="flex flex-row items-center justify-center md:justify-start gap-2">
             <CiLocationOn className="text-3xl md:text-4xl" />
-            <p className="text-xl md:text-2xl">Sarajevo</p>
+            <p className="text-xl md:text-2xl">Sarajevo, Banja Luka, Mostar</p>
           </div>
           <div className="flex justify-center md:justify-start">
             <Link to="/cars">
