@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { CiLocationOn } from "react-icons/ci";
 import Models from "../components/Models";
 import models from "../data/models";
+import HowWorks from "./HowWorks";
 
 const HomePage = () => {
   return (
@@ -24,17 +25,19 @@ const HomePage = () => {
         </div>
         <div className="w-full md:w-1/2 p-4 md:p-6">
           <img
-            src={"/src/assets/Audi-A6.webp"}
+            src={"/src/assets/pngegg.png"}
             alt="audi"
-            className="w-full h-auto rounded-3xl shadow-lg"
+            className="w-full h-auto rounded-3xl"
           />
         </div>
       </div>
+
       <div className="flex flex-wrap justify-center gap-10 mt-[10vh]">
         {models.map((model) => (
           <Models model={model} key={model.id} />
         ))}
       </div>
+      <HowWorks />
     </section>
   );
 };
