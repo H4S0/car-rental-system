@@ -38,7 +38,7 @@ function Navbar({ isLogged, setIsLogged }) {
       <div className="w-full flex justify-between items-center">
         {/* Burger menu button for smaller screens */}
         <div className="md:hidden">
-          <button onClick={() => setIsToggle(!isToggle)}>
+          <button onClick={() => setIsToggle(!isToggle)} className="cursor-pointer">
             {isToggle ? (
               <IoCloseOutline className="text-3xl" />
             ) : (
