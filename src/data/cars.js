@@ -1,4 +1,4 @@
-export const cars = [
+const cars = [
   {
     id: 1,
     picture: "/src/assets/car1.jpg",
@@ -80,3 +80,6 @@ export const cars = [
     price: 65,
   },
 ];
+
+export default cars;
+
