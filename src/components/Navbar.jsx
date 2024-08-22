@@ -36,9 +36,11 @@ function Navbar({ isLogged, setIsLogged }) {
   return (
     <nav className="p-4 flex flex-col md:flex-row justify-between items-center">
       <div className="w-full flex justify-between items-center">
-        {/* Burger menu button for smaller screens */}
         <div className="md:hidden">
-          <button onClick={() => setIsToggle(!isToggle)} className="cursor-pointer">
+          <button
+            onClick={() => setIsToggle(!isToggle)}
+            className="cursor-pointer"
+          >
             {isToggle ? (
               <IoCloseOutline className="text-3xl" />
             ) : (
@@ -60,14 +62,6 @@ function Navbar({ isLogged, setIsLogged }) {
                 className="hover:text-sky-500 transition-colors duration-300 whitespace-nowrap"
               >
                 Home
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/howworks"
-                className="hover:text-blue-500 transition-colors duration-300 whitespace-nowrap"
-              >
-                How it works
               </Link>
             </li>
             <li>
@@ -131,7 +125,7 @@ function Navbar({ isLogged, setIsLogged }) {
       {/* Mobile layout: menu and buttons all on the left */}
       {isToggle && (
         <div
-          className={`absolute top-0 left-0 bg-[#e6e7e7] w-full h-full z-50 flex flex-col p-4 transition-transform duration-500 ${
+          className={`absolute top-0 left-0 bg-[#e6e7e7] w-full h-full z-50 flex flex-col p-4 transition-transform duration-500  ${
             isToggle ? "translate-x-0" : "-translate-x-full"
           }`}
         >
