@@ -3,8 +3,12 @@ import { Link } from "react-router-dom";
 import { supabase } from "../services/supabase";
 import { CiMenuBurger } from "react-icons/ci";
 import { IoCloseOutline } from "react-icons/io5";
+import { useContext } from "react";
+import { AuthContext } from "../contexts/AuthContext";
 
-function Navbar({ isLogged, setIsLogged }) {
+function Navbar() {
+  const { isLogged, setIsLogged } = useContext(AuthContext);
+
   const [email, setEmail] = useState(null);
   const [isToggle, setIsToggle] = useState(false);
 
