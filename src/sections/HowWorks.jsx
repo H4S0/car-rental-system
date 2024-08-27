@@ -7,7 +7,7 @@ const HowWorks = () => {
       <h2 className="text-center text-3xl font-bold text-blue-500 mb-10">
         Our rental system works in 3 steps
       </h2>
-      <div className="flex flex-col md:flex-row  items-center gap-10 md:gap-20">
+      <div className="flex flex-col md:flex-row  items-center gap-10 md:gap-15 lg:gap-20">
         <div className="flex flex-col items-center text-center gap-3 w-[250px]">
           <img
             src="/src/assets/1176403.png"
