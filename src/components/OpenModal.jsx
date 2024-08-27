@@ -11,7 +11,6 @@ const OpenModal = ({ closeModal }) => {
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 backdrop-blur-sm">
       <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full animate-scale-up">
-        <h2 className="text-xl font-bold mb-4">Rent a Car</h2>
         <p className="text-gray-600 mb-4">
           {isLogged ? <p>Form</p> : <p>Please login first</p>}
         </p>
