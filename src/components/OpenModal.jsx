@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { AuthContext } from "../contexts/AuthContext"; // Adjust the path as needed
+import { AuthContext } from "../contexts/AuthContext"; 
 
 const OpenModal = ({ closeModal }) => {
   const { isLogged } = useContext(AuthContext);
