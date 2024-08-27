@@ -1,15 +1,16 @@
-import { createContext, useEffect, useState } from "react";
-import PropTypes from "prop-types"; // Importing PropTypes
-import { supabase } from "../services/supabase";
+import { createContext, useState, useEffect } from "react";
+import PropTypes from "prop-types";
+import { supabase } from "../services/supabase"; // Adjust the path as needed
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
+  const [isLogged, setIsLogged] = useState(false);
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    // Fetch the initial session
-    const fetchSession = async () => {
+    // Function to check session on app load and handle auth state changes
+    const checkSession = async () => {
       const {
         data: { session },
         error,
@@ -18,30 +19,35 @@ export const AuthProvider = ({ children }) => {
         console.error("Error fetching session:", error.message);
         return;
       }
+      setIsLogged(!!session);
       setUser(session?.user ?? null);
     };
 
-    fetchSession();
+    checkSession();
 
-    // Subscribe to auth state changes
-    const { data: subscription } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setUser(session?.user ?? null);
-      }
-    );
+    // Handle subscription to auth state changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      setIsLogged(!!session);
+      setUser(session?.user ?? null);
+    });
 
     // Clean up the subscription on component unmount
     return () => {
-      subscription?.unsubscribe();
+      if (subscription) {
+        subscription.unsubscribe();
+      }
     };
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ isLogged, user, setIsLogged }}>
+      {children}
+    </AuthContext.Provider>
   );
 };
 
-// Adding propTypes validation for children
 AuthProvider.propTypes = {
-  children: PropTypes.node.isRequired, // children must be a valid React node
+  children: PropTypes.node.isRequired,
 };
