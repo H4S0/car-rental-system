@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { supabase } from "../services/supabase";
 import { useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { AuthContext } from "../contexts/AuthContext";
 
-const Login = ({ setIsLogged }) => {
+const Login = () => {
+  const { setIsLogged } = useContext(AuthContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
@@ -28,7 +31,7 @@ const Login = ({ setIsLogged }) => {
 
         if (session.data?.session) {
           setIsLogged(true); // Update your app's state
-          navigate("/homepage");
+          navigate("/");
         } else {
           setError("Failed to retrieve session.");
         }
