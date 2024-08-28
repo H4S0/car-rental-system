@@ -2,11 +2,16 @@ import { useContext } from "react";
 import { AuthContext } from "../contexts/AuthContext"; // Adjust the path as needed
 import { Link } from "react-router-dom";
 import RentForm from "./RentForm";
+import { useCart } from "../contexts/CartContext";
 
-const OpenModal = ({ closeModal }) => {
+const OpenModal = ({ closeModal, car }) => {
+  const { addCarToCart } = useCart();
   const { isLogged } = useContext(AuthContext);
 
-  // Add a check to avoid rendering if context is not available
+  function handleRentCar() {
+    addCarToCart(car);
+  }
+
   if (typeof isLogged === "undefined") {
     return null;
   }
@@ -24,13 +29,20 @@ const OpenModal = ({ closeModal }) => {
           >
             Close
           </button>
-          {!isLogged && (
+          {!isLogged ? (
             <Link
               to="/login"
               className="bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg px-4 py-2 transition-all duration-300"
             >
               Login
             </Link>
+          ) : (
+            <button
+              onClick={handleRentCar}
+              className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md transition duration-300"
+            >
+              Proceed to Payment
+            </button>
           )}
         </div>
       </div>
