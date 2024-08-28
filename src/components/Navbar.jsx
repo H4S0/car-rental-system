@@ -1,14 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "../services/supabase";
 import { CiMenuBurger } from "react-icons/ci";
 import { IoCloseOutline } from "react-icons/io5";
-import { useContext } from "react";
+import { FaCar } from "react-icons/fa";
 import { AuthContext } from "../contexts/AuthContext";
+import { useCart } from "../contexts/CartContext";
 
 function Navbar() {
   const { isLogged, setIsLogged } = useContext(AuthContext);
-
+  const { rentedCars } = useCart(); // Use the cart context to get rented cars
   const [email, setEmail] = useState(null);
   const [isToggle, setIsToggle] = useState(false);
 
@@ -95,6 +96,17 @@ function Navbar() {
         </div>
 
         <div className="hidden md:flex items-center gap-5">
+          <div className="relative">
+            {rentedCars.length > 0 && (
+              <>
+                <FaCar className="text-gray-700 text-4xl" />
+                <span className="absolute top-[-15%] right-[-25%] bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center">
+                  {rentedCars.length}
+                </span>
+              </>
+            )}
+          </div>
+
           {isLogged ? (
             <div className="flex flex-row items-center gap-4 text-gray-700">
               <span>{email}</span>
