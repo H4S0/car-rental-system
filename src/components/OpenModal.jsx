@@ -3,14 +3,44 @@ import { AuthContext } from "../contexts/AuthContext"; // Adjust the path as nee
 import { Link } from "react-router-dom";
 import RentForm from "./RentForm";
 import { useCart } from "../contexts/CartContext";
+import { supabase } from "../services/supabase"; // Adjust the path as needed
 
 const OpenModal = ({ closeModal, car }) => {
   const { addCarToCart } = useCart();
-  const { isLogged } = useContext(AuthContext);
+  const { isLogged, user } = useContext(AuthContext);
 
-  function handleRentCar() {
-    addCarToCart(car);
-  }
+  const handleRentCar = async () => {
+    // Check if the user is logged in
+    if (isLogged && user) {
+      try {
+        // Insert rental record into the rented_cars table
+        const { error } = await supabase.from("rented_cars").insert([
+          {
+            car_id: car.id,
+            user_id: user.id,
+            rental_date: new Date().toISOString(),
+            // Optionally, you can set a return_date if needed
+          },
+        ]);
+
+        if (error) {
+          throw error;
+        }
+
+        // Optionally, add the car to the cart as well
+        addCarToCart(car);
+
+        // Close the modal after successful rental
+        closeModal();
+        alert("Car rented successfully!");
+      } catch (error) {
+        console.error("Error renting car:", error.message);
+        alert("Failed to rent the car. Please try again.");
+      }
+    } else {
+      alert("Please log in to rent a car.");
+    }
+  };
 
   if (typeof isLogged === "undefined") {
     return null;
