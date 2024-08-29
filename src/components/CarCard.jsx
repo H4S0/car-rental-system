@@ -58,7 +58,7 @@ const CarCard = ({ car }) => {
             </button>
           </div>
         </div>
-        {modalOpen && <OpenModal closeModal={closeModal} />}
+        {modalOpen && <OpenModal closeModal={closeModal} car={car} />}
       </div>
     </div>
   );
