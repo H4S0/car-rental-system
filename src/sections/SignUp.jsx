@@ -14,19 +14,41 @@ const Signup = () => {
     setError(null);
     setSuccess(null);
 
-    const { error } = await supabase.auth.signUp({
-      username,
+    // Sign up with Supabase
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.signUp({
       email,
       password,
+      // Note: Supabase currently doesn't support `username` directly in `signUp`.
+      // You might need to use `email` as a unique identifier.
     });
 
     if (error) {
       setError(error.message);
-    } else {
-      setSuccess(
-        "Signup successful! Please check your email to confirm your account."
-      );
+      return;
     }
+
+    // Insert user into app_users table
+    const { error: insertError } = await supabase.from("app_users").insert([
+      {
+        id: user.id,
+        email: user.email,
+        created_at: new Date().toISOString(),
+      },
+    ]);
+
+    if (insertError) {
+      setError(
+        `User created but failed to insert into app_users table: ${insertError.message}`
+      );
+      return;
+    }
+
+    setSuccess(
+      "Signup successful! Please check your email to confirm your account."
+    );
   };
 
   return (
