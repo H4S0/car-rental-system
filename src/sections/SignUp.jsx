@@ -1,4 +1,4 @@
-// src/components/Signup.js
+
 import { useState } from "react";
 import { supabase } from "../services/supabase";
 
@@ -14,15 +14,13 @@ const Signup = () => {
     setError(null);
     setSuccess(null);
 
-    // Sign up with Supabase
+    
     const {
       data: { user },
       error,
     } = await supabase.auth.signUp({
       email,
       password,
-      // Note: Supabase currently doesn't support `username` directly in `signUp`.
-      // You might need to use `email` as a unique identifier.
     });
 
     if (error) {
@@ -30,7 +28,6 @@ const Signup = () => {
       return;
     }
 
-    // Insert user into app_users table
     const { error: insertError } = await supabase.from("app_users").insert([
       {
         id: user.id,
