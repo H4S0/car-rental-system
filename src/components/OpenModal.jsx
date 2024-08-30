@@ -9,36 +9,11 @@ const OpenModal = ({ closeModal, car }) => {
   const { addCarToCart } = useCart();
   const { isLogged, user } = useContext(AuthContext);
 
-  const handleRentCar = async () => {
-    // Check if the user is logged in
-    if (isLogged && user) {
-      try {
-        // Insert rental record into the rented_cars table
-        const { error } = await supabase.from("rented_cars").insert([
-          {
-            car_id: car.id,
-            user_id: user.id,
-            rental_date: new Date().toISOString(),
-            // Optionally, you can set a return_date if needed
-          },
-        ]);
-
-        if (error) {
-          throw error;
-        }
-
-        // Optionally, add the car to the cart as well
-        addCarToCart(car);
-
-        // Close the modal after successful rental
-        closeModal();
-        alert("Car rented successfully!");
-      } catch (error) {
-        console.error("Error renting car:", error.message);
-        alert("Failed to rent the car. Please try again.");
-      }
+ const handleRentCar = async () => {
+    if (car && car.id) {
+      await addCarToCart(user.id, car.id);
     } else {
-      alert("Please log in to rent a car.");
+      console.log("Car ID is undefined");
     }
   };
 
