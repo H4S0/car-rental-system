@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { supabase } from "../services/supabase"; // Adjust the path as necessary
+import { supabase } from "../services/supabase"; 
 
 const CartContext = createContext();
 
