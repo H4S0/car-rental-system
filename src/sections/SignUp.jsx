@@ -1,4 +1,4 @@
-
+// src/components/Signup.js
 import { useState } from "react";
 import { supabase } from "../services/supabase";
 
@@ -14,13 +14,15 @@ const Signup = () => {
     setError(null);
     setSuccess(null);
 
-    
+    // Sign up with Supabase
     const {
       data: { user },
       error,
     } = await supabase.auth.signUp({
       email,
       password,
+      // Note: Supabase currently doesn't support `username` directly in `signUp`.
+      // You might need to use `email` as a unique identifier.
     });
 
     if (error) {
@@ -28,6 +30,7 @@ const Signup = () => {
       return;
     }
 
+    // Insert user into app_users table
     const { error: insertError } = await supabase.from("app_users").insert([
       {
         id: user.id,
@@ -49,34 +52,52 @@ const Signup = () => {
   };
 
   return (
-    <div>
-      <h2>Sign Up</h2>
-      <form onSubmit={handleSignup}>
-        <input
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          required
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <button type="submit">Sign Up</button>
-      </form>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      {success && <p style={{ color: "green" }}>{success}</p>}
+    <div className="flex flex-col items-center justify-center py-8">
+      <h2 className="text-center text-3xl font-bold text-blue-500 mb-6">
+        Sign Up
+      </h2>
+      <div className="flex flex-col lg:flex-row items-center p-8 gap-10 rounded-lg shadow-md">
+        <form
+          onSubmit={handleSignup}
+          className="flex flex-col w-full lg:w-1/2 space-y-4"
+        >
+          <input
+            type="text"
+            placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+            className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+          />
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+          />
+          <button
+            type="submit"
+            className="bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition duration-300"
+          >
+            Sign Up
+          </button>
+        </form>
+        <div className="mt-6  flex justify-center items-center rounded-full">
+          <img src={"/src/assets/pngegg.png"} />
+        </div>
+      </div>
+      {error && <p className="text-red-500 mt-4">{error}</p>}
+      {success && <p className="text-green-500 mt-4">{success}</p>}
     </div>
   );
 };
