@@ -48,6 +48,10 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
+export function useAuth() {
+  return useContext(AuthContext);
+}
+
 AuthProvider.propTypes = {
   children: PropTypes.node.isRequired,
 };
