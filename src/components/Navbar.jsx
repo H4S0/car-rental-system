@@ -9,7 +9,7 @@ import { useCart } from "../contexts/CartContext";
 
 function Navbar() {
   const { isLogged, setIsLogged } = useContext(AuthContext);
-  const { rentedCars } = useCart(); // Use the cart context to get rented cars
+  const { rentedCars } = useCart(); 
   const [email, setEmail] = useState(null);
   const [isToggle, setIsToggle] = useState(false);
 
