@@ -1,149 +1,99 @@
-import { useEffect, useState, useContext } from "react";
-import { Link } from "react-router-dom";
+import { useState } from "react";
 import { supabase } from "../services/supabase";
-import { CiMenuBurger } from "react-icons/ci";
-import { IoCloseOutline } from "react-icons/io5";
-import { FaCar } from "react-icons/fa";
-import { AuthContext } from "../contexts/AuthContext";
-import { useCart } from "../contexts/CartContext";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
-function Navbar() {
-  const { isLogged, setIsLogged } = useContext(AuthContext);
-  const { rentedCars, fetchCart, isProcessing } = useCart();
-  const [email, setEmail] = useState(null);
-  const [isToggle, setIsToggle] = useState(false);
+const Login = () => {
+  const { setIsLogged, setUser, isProcessing, setIsProcessing, setUpdateFlag } =
+    useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    async function fetchUser() {
-      if (isLogged) {
-        const res = await supabase.auth.getSession();
-        const user = res.data?.session?.user;
-        if (user) {
-          setEmail(user.email);
-          await fetchCart(); // Fetch rented cars for the logged-in user
-        }
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError(null);
+    setIsLoading(true);
+    setIsProcessing(true); // Set processing state to true
+
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        setError(error.message);
       } else {
-        setEmail(null);
-      }
-    }
-    fetchUser();
-  }, [isLogged, fetchCart]);
+        const {
+          data: { session },
+          error: sessionError,
+        } = await supabase.auth.getSession();
 
-  const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      console.error("Error signing out:", error.message);
-    } else {
-      setIsLogged(false);
-      setEmail(null);
-      // Clear the cart in CartContext when logging out
-      const { clearCart } = useCart();
-      clearCart();
+        if (sessionError) {
+          setError("Failed to retrieve session.");
+        } else {
+          setIsLogged(true);
+          setUser(session.user);
+          navigate("/rentedcars");
+          window.location.reload();
+        }
+      }
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setIsLoading(false);
+      setIsProcessing(false);
     }
   };
 
   return (
-    <nav className="p-4 flex flex-col md:flex-row justify-between items-center">
-      <div className="w-full flex justify-between items-center">
-        <div className="md:hidden">
-          <button
-            onClick={() => setIsToggle(!isToggle)}
-            className="cursor-pointer"
-          >
-            {isToggle ? (
-              <IoCloseOutline className="text-3xl" />
-            ) : (
-              <CiMenuBurger className="text-3xl" />
-            )}
-          </button>
-        </div>
-
-        <div
-          className={`${
-            isToggle ? "block" : "hidden"
-          } md:flex flex-col md:flex-row justify-start items-start md:items-center gap-4 md:gap-10`}
+    <div className="flex flex-col items-center justify-center">
+      <h2 className="text-center text-3xl font-bold text-blue-500 mb-6">
+        Login
+      </h2>
+      <div className="flex flex-col lg:flex-row gap-10 items-center p-8 rounded-lg mt-11 shadow-md">
+        <form
+          onSubmit={handleLogin}
+          className="flex flex-col w-full lg:w-1/2 space-y-4"
         >
-          <ul className="flex flex-col md:flex-row gap-4 md:gap-10 text-gray-700">
-            <li>
-              <Link
-                to="/"
-                className="hover:rounded-lg hover:text-white hover:bg-slate-400 px-2 py-2 transition-colors duration-300 whitespace-nowrap"
-              >
-                Home
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/cars"
-                className="hover:rounded-lg hover:text-white hover:bg-slate-400 px-2 py-2 transition-colors duration-300 whitespace-nowrap"
-              >
-                Cars
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/whychoose"
-                className="hover:rounded-lg hover:text-white hover:bg-slate-400 px-2 py-2 transition-colors duration-300 whitespace-nowrap"
-              >
-                Why choose us
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/contact"
-                className="hover:rounded-lg hover:text-white hover:bg-slate-400 px-2 py-2 transition-colors duration-300 whitespace-nowrap"
-              >
-                Contact
-              </Link>
-            </li>
-          </ul>
-        </div>
-
-        <div className="hidden md:flex items-center gap-5">
-          <div className="relative">
-            {isLogged && rentedCars.length > 0 && (
-              <Link to="/rentedcars">
-                <FaCar
-                  className={`text-gray-700 text-4xl ${
-                    isProcessing ? "animate-spin" : ""
-                  }`}
-                />
-                <span className="absolute top-[-15%] right-[-25%] bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center">
-                  {rentedCars.length}
-                </span>
-              </Link>
-            )}
-          </div>
-          {isLogged ? (
-            <div className="flex flex-row items-center gap-4 text-gray-700">
-              <span>{email}</span>
-              <button
-                onClick={handleLogout}
-                className="hover:bg-gray-600 bg-gray-500 px-4 py-2 rounded-lg text-white font-semibold transition-colors duration-300 whitespace-nowrap"
-              >
-                Logout
-              </button>
-            </div>
-          ) : (
-            <div className="flex flex-row items-center gap-5">
-              <Link
-                to="/signup"
-                className="hover:bg-blue-600 bg-blue-500 px-4 py-2 rounded-lg text-white font-semibold transition-colors duration-300 whitespace-nowrap"
-              >
-                Sign Up
-              </Link>
-              <Link
-                to="/login"
-                className="hover:bg-green-600 bg-green-500 px-4 py-2 rounded-lg text-white font-semibold transition-colors duration-300 whitespace-nowrap"
-              >
-                Log In
-              </Link>
-            </div>
-          )}
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+          />
+          <button
+            type="submit"
+            disabled={isLoading || isProcessing}
+            className="bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition duration-300"
+          >
+            {isProcessing
+              ? "Processing..."
+              : isLoading
+              ? "Logging in..."
+              : "Login"}
+          </button>
+        </form>
+        <div className="mt-6 lg:mt-0 lg:ml-6 flex justify-center items-center rounded-full p-4 lg:p-6">
+          <img src="/src/assets/pngegg (1).png" alt="Audi A7" />
         </div>
       </div>
-    </nav>
+      {error && <p className="text-red-500 mt-4">{error}</p>}
+    </div>
   );
-}
+};
 
-export default Navbar;
+export default Login;
