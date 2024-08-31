@@ -1,39 +1,43 @@
-import { createContext, useState, useEffect } from "react";
+import { createContext, useState, useEffect, useContext } from "react";
 import PropTypes from "prop-types";
-import { supabase } from "../services/supabase"; // Adjust the path as needed
+import { supabase } from "../services/supabase"; 
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [isLogged, setIsLogged] = useState(false);
   const [user, setUser] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [updateFlag, setUpdateFlag] = useState(0);
 
   useEffect(() => {
-    // Function to check session on app load and handle auth state changes
     const checkSession = async () => {
-      const {
-        data: { session },
-        error,
-      } = await supabase.auth.getSession();
-      if (error) {
-        console.error("Error fetching session:", error.message);
-        return;
+      try {
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession();
+        if (error) {
+          console.error("Error fetching session:", error.message);
+          return;
+        }
+        setIsLogged(!!session);
+        setUser(session?.user ?? null);
+      } catch (error) {
+        console.error("Error checking session:", error.message);
       }
-      setIsLogged(!!session);
-      setUser(session?.user ?? null);
     };
 
     checkSession();
 
-    // Handle subscription to auth state changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
       setIsLogged(!!session);
       setUser(session?.user ?? null);
+      setUpdateFlag((prev) => prev + 1); 
     });
 
-    // Clean up the subscription on component unmount
     return () => {
       if (subscription) {
         subscription.unsubscribe();
@@ -42,7 +46,17 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ isLogged, user, setIsLogged }}>
+    <AuthContext.Provider
+      value={{
+        isLogged,
+        user,
+        isProcessing,
+        updateFlag,
+        setIsLogged,
+        setUser,
+        setIsProcessing,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
