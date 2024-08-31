@@ -1,19 +1,27 @@
-import { useContext } from "react";
-import { AuthContext } from "../contexts/AuthContext"; // Adjust the path as needed
+import { useContext, useState } from "react";
+import { AuthContext } from "../contexts/AuthContext";
 import { Link } from "react-router-dom";
 import RentForm from "./RentForm";
 import { useCart } from "../contexts/CartContext";
-import { supabase } from "../services/supabase"; // Adjust the path as needed
+import { useNavigate } from "react-router-dom";
 
 const OpenModal = ({ closeModal, car }) => {
   const { addCarToCart } = useCart();
   const { isLogged, user } = useContext(AuthContext);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const navigate = useNavigate();
 
- const handleRentCar = async () => {
-    if (car && car.id) {
-      await addCarToCart(user.id, car.id);
-    } else {
-      console.log("Car ID is undefined");
+  const handleRentCar = async () => {
+    setIsProcessing(true);
+    try {
+      await addCarToCart(user.id, car.id); // Add car to cart
+
+      closeModal();
+      navigate("/rentedcars");
+    } catch (error) {
+      console.error("Error during payment process:", error.message);
+    } finally {
+      setIsProcessing(false); // End processing
     }
   };
 
@@ -45,8 +53,9 @@ const OpenModal = ({ closeModal, car }) => {
             <button
               onClick={handleRentCar}
               className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md transition duration-300"
+              disabled={isProcessing} // Disable button while processing
             >
-              Proceed to Payment
+              {isProcessing ? "Processing..." : "Proceed to Payment"}
             </button>
           )}
         </div>
