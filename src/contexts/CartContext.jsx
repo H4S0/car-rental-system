@@ -1,5 +1,11 @@
-import { createContext, useContext, useState, useEffect } from "react";
-import { supabase } from "../services/supabase"; 
+import {
+  createContext,
+  useState,
+  useEffect,
+  useContext,
+  useCallback,
+} from "react";
+import { supabase } from "../services/supabase"; // Adjust the path as needed
 
 const CartContext = createContext();
 
@@ -8,12 +14,16 @@ export const useCart = () => useContext(CartContext);
 export const CartProvider = ({ children }) => {
   const [rentedCars, setRentedCars] = useState([]);
   const [user, setUser] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     const fetchUser = async () => {
       const { data } = await supabase.auth.getSession();
       if (data.session) {
         setUser(data.session.user);
+      } else {
+        setUser(null);
+        setRentedCars([]); // Clear cart when no user is logged in
       }
     };
     fetchUser();
@@ -21,23 +31,31 @@ export const CartProvider = ({ children }) => {
 
   useEffect(() => {
     if (user) {
-      const fetchCart = async () => {
-        const { data, error } = await supabase
-          .from("rented_cars")
-          .select("*")
-          .eq("user_id", user.id);
-
-        if (error) {
-          console.error("Error fetching rented cars:", error);
-        } else {
-          setRentedCars(data);
-        }
-      };
       fetchCart();
+    } else {
+      setRentedCars([]); // Clear cart when no user is logged in
+    }
+  }, [user]);
+
+  const fetchCart = useCallback(async () => {
+    if (user) {
+      setIsProcessing(true);
+      const { data, error } = await supabase
+        .from("rented_cars")
+        .select("*")
+        .eq("user_id", user.id);
+
+      if (error) {
+        console.error("Error fetching rented cars:", error);
+      } else {
+        setRentedCars(data);
+      }
+      setIsProcessing(false);
     }
   }, [user]);
 
   const addCarToCart = async (user_id, car_id) => {
+    setIsProcessing(true);
     try {
       const { data: carData, error: fetchError } = await supabase
         .from("cars")
@@ -69,13 +87,15 @@ export const CartProvider = ({ children }) => {
         throw new Error("Error inserting into rented_cars table");
       }
 
-      return rentedCarData;
+      fetchCart(); // Refresh cart after adding a car
     } catch (error) {
       console.error("Error renting car:", error.message);
     }
+    setIsProcessing(false);
   };
 
   const clearCart = async () => {
+    setIsProcessing(true);
     if (user) {
       setRentedCars([]);
 
@@ -87,11 +107,14 @@ export const CartProvider = ({ children }) => {
       if (error) {
         console.error("Error clearing cart:", error);
       }
+      setIsProcessing(false);
     }
   };
 
   return (
-    <CartContext.Provider value={{ rentedCars, addCarToCart, clearCart }}>
+    <CartContext.Provider
+      value={{ rentedCars, fetchCart, addCarToCart, clearCart, isProcessing }}
+    >
       {children}
     </CartContext.Provider>
   );
