@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { supabase } from "../services/supabase";
 import { useNavigate } from "react-router-dom";
-import { useContext } from "react";
-import { AuthContext } from "../contexts/AuthContext";
+import { useAuth } from "../contexts/AuthContext";
 
 const Login = () => {
-  const { setIsLogged } = useContext(AuthContext);
+  const { setIsLogged, setUser, isProcessing, setIsProcessing, setUpdateFlag } =
+    useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
@@ -16,6 +16,7 @@ const Login = () => {
     e.preventDefault();
     setError(null);
     setIsLoading(true);
+    setIsProcessing(true); // Set processing state to true
 
     try {
       const { error } = await supabase.auth.signInWithPassword({
@@ -26,20 +27,24 @@ const Login = () => {
       if (error) {
         setError(error.message);
       } else {
-        // Retrieve the session to confirm the user is authenticated
-        const session = await supabase.auth.getSession();
+        const {
+          data: { session },
+          error: sessionError,
+        } = await supabase.auth.getSession();
 
-        if (session.data?.session) {
-          setIsLogged(true); // Update your app's state
-          navigate("/");
-        } else {
+        if (sessionError) {
           setError("Failed to retrieve session.");
+        } else {
+          setIsLogged(true);
+          setUser(session.user);
+          navigate("/rentedcars");
         }
       }
     } catch (error) {
       setError(error.message);
     } finally {
       setIsLoading(false);
+      setIsProcessing(false);
     }
   };
 
@@ -71,10 +76,14 @@ const Login = () => {
           />
           <button
             type="submit"
-            disabled={isLoading}
+            disabled={isLoading || isProcessing}
             className="bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition duration-300"
           >
-            {isLoading ? "Logging in..." : "Login"}
+            {isProcessing
+              ? "Processing..."
+              : isLoading
+              ? "Logging in..."
+              : "Login"}
           </button>
         </form>
         <div className="mt-6 lg:mt-0 lg:ml-6 flex justify-center items-center rounded-full p-4 lg:p-6">
