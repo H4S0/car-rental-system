@@ -5,7 +5,7 @@ import {
   useContext,
   useCallback,
 } from "react";
-import { supabase } from "../services/supabase"; // Adjust the path as needed
+import { supabase } from "../services/supabase"; 
 
 const CartContext = createContext();
 
@@ -14,7 +14,7 @@ export const useCart = () => useContext(CartContext);
 export const CartProvider = ({ children }) => {
   const [rentedCars, setRentedCars] = useState([]);
   const [user, setUser] = useState(null);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [updateFlag, setUpdateFlag] = useState(false);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -23,7 +23,6 @@ export const CartProvider = ({ children }) => {
         setUser(data.session.user);
       } else {
         setUser(null);
-        setRentedCars([]); // Clear cart when no user is logged in
       }
     };
     fetchUser();
@@ -33,13 +32,12 @@ export const CartProvider = ({ children }) => {
     if (user) {
       fetchCart();
     } else {
-      setRentedCars([]); // Clear cart when no user is logged in
+      setRentedCars([]); 
     }
-  }, [user]);
+  }, [user, updateFlag]);
 
   const fetchCart = useCallback(async () => {
     if (user) {
-      setIsProcessing(true);
       const { data, error } = await supabase
         .from("rented_cars")
         .select("*")
@@ -48,14 +46,18 @@ export const CartProvider = ({ children }) => {
       if (error) {
         console.error("Error fetching rented cars:", error);
       } else {
-        setRentedCars(data);
+        setRentedCars(data || []);
       }
-      setIsProcessing(false);
     }
   }, [user]);
 
-  const addCarToCart = async (user_id, car_id) => {
-    setIsProcessing(true);
+  const addCarToCart = async (
+    user_id,
+    car_id,
+    startDate,
+    endDate,
+    location
+  ) => {
     try {
       const { data: carData, error: fetchError } = await supabase
         .from("cars")
@@ -80,6 +82,9 @@ export const CartProvider = ({ children }) => {
             price: carData.price,
             picture: carData.picture,
             release_date: carData.release_date,
+            rental_date: startDate,
+            return_date: endDate,
+            location: location,
           },
         ]);
 
@@ -87,15 +92,13 @@ export const CartProvider = ({ children }) => {
         throw new Error("Error inserting into rented_cars table");
       }
 
-      fetchCart(); // Refresh cart after adding a car
+      setUpdateFlag((prev) => !prev);
     } catch (error) {
       console.error("Error renting car:", error.message);
     }
-    setIsProcessing(false);
   };
 
   const clearCart = async () => {
-    setIsProcessing(true);
     if (user) {
       setRentedCars([]);
 
@@ -107,13 +110,14 @@ export const CartProvider = ({ children }) => {
       if (error) {
         console.error("Error clearing cart:", error);
       }
-      setIsProcessing(false);
+
+      setUpdateFlag((prev) => !prev);
     }
   };
 
   return (
     <CartContext.Provider
-      value={{ rentedCars, fetchCart, addCarToCart, clearCart, isProcessing }}
+      value={{ rentedCars, fetchCart, addCarToCart, clearCart }}
     >
       {children}
     </CartContext.Provider>
