@@ -5,7 +5,7 @@ import {
   useContext,
   useCallback,
 } from "react";
-import { supabase } from "../services/supabase"; 
+import { supabase } from "../services/supabase"; // Adjust the path as needed
 
 const CartContext = createContext();
 
@@ -32,7 +32,7 @@ export const CartProvider = ({ children }) => {
     if (user) {
       fetchCart();
     } else {
-      setRentedCars([]); 
+      setRentedCars([]); // Clear cart when no user
     }
   }, [user, updateFlag]);
 
@@ -84,7 +84,7 @@ export const CartProvider = ({ children }) => {
             release_date: carData.release_date,
             rental_date: startDate,
             return_date: endDate,
-            location: location,
+            location: location, // Add location to the inserted data
           },
         ]);
 
