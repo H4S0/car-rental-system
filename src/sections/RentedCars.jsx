@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useCart } from "../contexts/CartContext";
 import { useAuth } from "../contexts/AuthContext";
+import RentedCarCard from "../components/RentedCarCard";
 
 const RentedCars = () => {
   const { rentedCars, fetchCart } = useCart();
@@ -9,9 +10,9 @@ const RentedCars = () => {
 
   useEffect(() => {
     const updateRentedCars = async () => {
-      if (isLogged) {
+      if (isLogged && !isProcessing) {
         setLoading(true);
-        await fetchCart(); // Fetch the rented cars for the current user
+        await fetchCart();
         setLoading(false);
       } else {
         setLoading(false);
@@ -19,7 +20,7 @@ const RentedCars = () => {
     };
 
     updateRentedCars();
-  }, [isLogged, fetchCart, updateFlag]); // Remove `isProcessing` from dependencies
+  }, [isLogged, isProcessing, fetchCart, updateFlag]);
 
   if (loading) return <div>Loading...</div>;
 
@@ -27,20 +28,12 @@ const RentedCars = () => {
     <div>
       <h2>Your Rented Cars</h2>
       {isLogged ? (
-        <div className="rented-car-list">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full px-4 lg:px-0">
           {rentedCars.length === 0 ? (
             <div>No rented cars found.</div>
           ) : (
             rentedCars.map((car) => (
-              <div key={car.car_id} className="rented-car-card">
-                <img src={car.picture} alt={car.model} className="car-image" />
-                <h3>{car.model}</h3>
-                <p>Mark: {car.mark}</p>
-                <p>Transmission: {car.transmission}</p>
-                <p>Price per day: ${car.price}</p>
-                <p>Release Date: {car.release_date}</p>
-                <p>Seats: {car.seats}</p>
-              </div>
+              <RentedCarCard key={car.id} rentedCar={car} />
             ))
           )}
         </div>
