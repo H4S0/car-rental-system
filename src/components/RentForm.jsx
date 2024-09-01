@@ -1,42 +1,52 @@
-import React from "react";
+import { useState } from "react";
 
-const RentForm = () => {
+const RentForm = ({ car_id, onDatesChange, onCityChange }) => {
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [city, setCity] = useState("");
+
+  const handleStartDateChange = (e) => {
+    setStartDate(e.target.value);
+    onDatesChange(e.target.value, endDate);
+  };
+
+  const handleEndDateChange = (e) => {
+    setEndDate(e.target.value);
+    onDatesChange(startDate, e.target.value);
+  };
+
+  const handleCityChange = (e) => {
+    setCity(e.target.value);
+    onCityChange(e.target.value);
+  };
+
   return (
-    <div className="flex flex-col p-4 bg-white  w-full max-w-md mx-auto">
-      <div className="mb-4 bg-white">
-        <label className="block text-gray-700 text-sm font-bold mb-2 bg-white">
-          Location
-        </label>
-        <select className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-          <option value="" key="">
-            Sarajevo
-          </option>
-          <option value="" key="">
-            Banja Luka
-          </option>
-          <option value="" key="">
-            Mostar
-          </option>
+    <div>
+      <div>
+        <label>City</label>
+        <select value={city} onChange={handleCityChange} required>
+          <option value="">Select a city</option>
+          <option value="Mostar">Mostar</option>
+          <option value="Sarajevo">Sarajevo</option>
+          <option value="Banja Luka">Banja Luka</option>
         </select>
       </div>
-      <div className="mb-4 bg-white">
-        <label className="block text-gray-700 bg-white text-sm font-bold mb-2">
-          Start Date
-        </label>
+      <div>
+        <label>Start Date</label>
         <input
           type="date"
-          className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          value={startDate}
+          onChange={handleStartDateChange}
+          required
         />
       </div>
-      <div className="mb-4 bg-white">
-        <label className="block bg-white text-gray-700 text-sm font-bold mb-2">
-          How Many Days?
-        </label>
+      <div>
+        <label>End Date</label>
         <input
-          type="number"
-          className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-gray-700"
-          min="1"
-          placeholder="How much days you keep car"
+          type="date"
+          value={endDate}
+          onChange={handleEndDateChange}
+          required
         />
       </div>
     </div>
