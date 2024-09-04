@@ -17,7 +17,7 @@ const OpenModal = ({ closeModal, car }) => {
   const handleRentCar = async () => {
     setIsProcessing(true);
     try {
-      await addCarToCart(user.id, car.id, startDate, endDate, city); // Add city to cart
+      await addCarToCart(user.id, car.id, startDate, endDate, city); 
 
       closeModal();
       navigate("/rentedcars");
