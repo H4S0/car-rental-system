@@ -16,7 +16,7 @@ const Login = () => {
     e.preventDefault();
     setError(null);
     setIsLoading(true);
-    setIsProcessing(true); // Set processing state to true
+    setIsProcessing(true); 
 
     try {
       const { error } = await supabase.auth.signInWithPassword({
