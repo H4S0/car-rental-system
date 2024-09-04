@@ -1,4 +1,3 @@
-// src/components/Signup.js
 import { useState } from "react";
 import { supabase } from "../services/supabase";
 
