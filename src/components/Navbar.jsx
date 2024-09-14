@@ -1,99 +1,209 @@
-import { useState } from "react";
-import { supabase } from "../services/supabase";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
+import { useEffect, useState, useContext } from 'react';
+import { Link } from 'react-router-dom';
+import { supabase } from '../services/supabase';
+import { CiMenuBurger } from 'react-icons/ci';
+import { IoCloseOutline } from 'react-icons/io5';
+import { AuthContext } from '../contexts/AuthContext';
+import { useCart } from '../contexts/CartContext';
 
-const Login = () => {
-  const { setIsLogged, setUser, isProcessing, setIsProcessing, setUpdateFlag } =
-    useAuth();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
+function Navbar() {
+  const { isLogged, setIsLogged } = useContext(AuthContext);
+  const { rentedCars, fetchCart, isProcessing } = useCart();
+  const [email, setEmail] = useState(null);
+  const [isToggle, setIsToggle] = useState(false);
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setError(null);
-    setIsLoading(true);
-    setIsProcessing(true); 
-
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
-        setError(error.message);
-      } else {
-        const {
-          data: { session },
-          error: sessionError,
-        } = await supabase.auth.getSession();
-
-        if (sessionError) {
-          setError("Failed to retrieve session.");
-        } else {
-          setIsLogged(true);
-          setUser(session.user);
-          navigate("/rentedcars");
-          window.location.reload();
+  useEffect(() => {
+    async function fetchUser() {
+      if (isLogged) {
+        const res = await supabase.auth.getSession();
+        const user = res.data?.session?.user;
+        if (user) {
+          setEmail(user.email);
+          await fetchCart(); // Fetch rented cars for the logged-in user
         }
+      } else {
+        setEmail(null);
       }
-    } catch (error) {
-      setError(error.message);
-    } finally {
-      setIsLoading(false);
-      setIsProcessing(false);
+    }
+    fetchUser();
+  }, [isLogged, fetchCart]);
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error('Error signing out:', error.message);
+    } else {
+      setIsLogged(false);
+      setEmail(null);
     }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center">
-      <h2 className="text-center text-3xl font-bold text-blue-500 mb-6">
-        Login
-      </h2>
-      <div className="flex flex-col lg:flex-row gap-10 items-center p-8 rounded-lg mt-11 shadow-md">
-        <form
-          onSubmit={handleLogin}
-          className="flex flex-col w-full lg:w-1/2 space-y-4"
-        >
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            className="p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
-          />
+    <nav className="p-4 flex flex-col md:flex-row justify-between items-center">
+      <div className="w-full flex justify-between items-center">
+        {/* Burger Menu Button for Mobile */}
+        <div className="md:hidden">
           <button
-            type="submit"
-            disabled={isLoading || isProcessing}
-            className="bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition duration-300"
+            onClick={() => setIsToggle(!isToggle)}
+            className="cursor-pointer"
           >
-            {isProcessing
-              ? "Processing..."
-              : isLoading
-              ? "Logging in..."
-              : "Login"}
+            {isToggle ? (
+              <IoCloseOutline className="text-3xl bg-white " />
+            ) : (
+              <CiMenuBurger className="text-3xl" />
+            )}
           </button>
-        </form>
-        <div className="mt-6 lg:mt-0 lg:ml-6 flex justify-center items-center rounded-full p-4 lg:p-6">
-          <img src="/src/assets/pngegg (1).png" alt="Audi A7" />
+        </div>
+
+        {/* Desktop Menu Links */}
+        <div className=" hidden md:flex md:flex-row gap-4 md:gap-10">
+          <Link
+            to="/"
+            className="hover:rounded-lg hover:text-white hover:bg-slate-400 px-2 py-2 transition-colors duration-300 whitespace-nowrap"
+          >
+            Home
+          </Link>
+          <Link
+            to="/cars"
+            className="hover:rounded-lg hover:text-white hover:bg-slate-400 px-2 py-2 transition-colors duration-300 whitespace-nowrap"
+          >
+            Cars
+          </Link>
+          <Link
+            to="/whychoose"
+            className="hover:rounded-lg hover:text-white hover:bg-slate-400 px-2 py-2 transition-colors duration-300 whitespace-nowrap"
+          >
+            Why choose us
+          </Link>
+          <Link
+            to="/contact"
+            className="hover:rounded-lg hover:text-white hover:bg-slate-400 px-2 py-2 transition-colors duration-300 whitespace-nowrap"
+          >
+            Contact
+          </Link>
+        </div>
+
+        {/* User Buttons */}
+        <div className="hidden md:flex gap-4 md:gap-5">
+          {isLogged ? (
+            <div className="flex flex-row items-center gap-4 text-gray-700">
+              <span>{email}</span>
+              <button
+                onClick={handleLogout}
+                className="hover:bg-gray-600 bg-gray-500 px-4 py-2 rounded-lg text-white font-semibold transition-colors duration-300 whitespace-nowrap"
+              >
+                Logout
+              </button>
+            </div>
+          ) : (
+            <div className="flex flex-row items-center gap-5">
+              <Link
+                to="/signup"
+                className="hover:bg-blue-600 bg-blue-500 px-4 py-2 rounded-lg text-white font-semibold transition-colors duration-300 whitespace-nowrap"
+              >
+                Sign Up
+              </Link>
+              <Link
+                to="/login"
+                className="hover:bg-green-600 bg-green-500 px-4 py-2 rounded-lg text-white font-semibold transition-colors duration-300 whitespace-nowrap"
+              >
+                Log In
+              </Link>
+            </div>
+          )}
+        </div>
+
+        {/* Mobile Menu */}
+        <div
+          className={`${
+            isToggle
+              ? 'fixed top-0 left-0 w-full h-full bg-white z-50 p-4'
+              : 'hidden '
+          } md:hidden flex flex-col bg-white`}
+        >
+          {/* Close Button at the top left */}
+          <button
+            onClick={() => setIsToggle(false)}
+            className="self-start cursor-pointer text-3xl mb-4  rounded-full p-1" // Add bg-white and padding
+          >
+            <IoCloseOutline className="text-gray-700 bg-white" />
+          </button>
+
+          {/* Links under the close button */}
+          <ul className="bg-white flex flex-col gap-4 text-gray-700">
+            <li className="bg-white">
+              <Link
+                to="/"
+                className="bg-white hover:rounded-lg hover:text-white hover:bg-slate-400 px-2 py-2 transition-colors duration-300 whitespace-nowrap"
+                onClick={() => setIsToggle(false)}
+              >
+                Home
+              </Link>
+            </li>
+            <li className="bg-white">
+              <Link
+                to="/cars"
+                className="bg-white hover:rounded-lg hover:text-white hover:bg-slate-400 px-2 py-2 transition-colors duration-300 whitespace-nowrap"
+                onClick={() => setIsToggle(false)}
+              >
+                Cars
+              </Link>
+            </li>
+            <li className="bg-white">
+              <Link
+                to="/whychoose"
+                className="bg-white hover:rounded-lg hover:text-white hover:bg-slate-400 px-2 py-2 transition-colors duration-300 whitespace-nowrap"
+                onClick={() => setIsToggle(false)}
+              >
+                Why choose us
+              </Link>
+            </li>
+            <li className="bg-white">
+              <Link
+                to="/contact"
+                className="bg-white hover:rounded-lg hover:text-white hover:bg-slate-400 px-2 py-2 transition-colors duration-300 whitespace-nowrap"
+                onClick={() => setIsToggle(false)}
+              >
+                Contact
+              </Link>
+            </li>
+          </ul>
+
+          {/* User Buttons on Mobile */}
+          <div className="bg-white flex flex-col gap-4 mt-4">
+            {isLogged ? (
+              <div className="flex flex-row items-center gap-4 text-gray-700">
+                <span>{email}</span>
+                <button
+                  onClick={handleLogout}
+                  className="hover:bg-gray-600 bg-gray-500 px-4 py-2 rounded-lg text-white font-semibold transition-colors duration-300 whitespace-nowrap"
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <div className="bg-white flex flex-col gap-4 w-fit">
+                <Link
+                  to="/signup"
+                  className="hover:bg-blue-600 bg-blue-500 px-4 py-2 rounded-lg text-white font-semibold transition-colors duration-300 whitespace-nowrap"
+                  onClick={() => setIsToggle(false)}
+                >
+                  Sign Up
+                </Link>
+                <Link
+                  to="/login"
+                  className="hover:bg-green-600 bg-green-500 px-4 py-2 rounded-lg text-white font-semibold transition-colors duration-300 whitespace-nowrap"
+                  onClick={() => setIsToggle(false)}
+                >
+                  Log In
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
       </div>
-      {error && <p className="text-red-500 mt-4">{error}</p>}
-    </div>
+    </nav>
   );
-};
+}
 
-export default Login;
+export default Navbar;
