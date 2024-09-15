@@ -8,7 +8,7 @@ import { useCart } from '../contexts/CartContext';
 
 function Navbar() {
   const { isLogged, setIsLogged } = useContext(AuthContext);
-  const { rentedCars, fetchCart, isProcessing } = useCart();
+  const { fetchCart } = useCart();
   const [email, setEmail] = useState(null);
   const [isToggle, setIsToggle] = useState(false);
 
@@ -69,12 +69,7 @@ function Navbar() {
           >
             Cars
           </Link>
-          <Link
-            to="/whychoose"
-            className="hover:rounded-lg hover:text-white hover:bg-slate-400 px-2 py-2 transition-colors duration-300 whitespace-nowrap"
-          >
-            Why choose us
-          </Link>
+
           <Link
             to="/contact"
             className="hover:rounded-lg hover:text-white hover:bg-slate-400 px-2 py-2 transition-colors duration-300 whitespace-nowrap"
@@ -147,15 +142,6 @@ function Navbar() {
                 onClick={() => setIsToggle(false)}
               >
                 Cars
-              </Link>
-            </li>
-            <li className="bg-white">
-              <Link
-                to="/whychoose"
-                className="bg-white hover:rounded-lg hover:text-white hover:bg-slate-400 px-2 py-2 transition-colors duration-300 whitespace-nowrap"
-                onClick={() => setIsToggle(false)}
-              >
-                Why choose us
               </Link>
             </li>
             <li className="bg-white">
